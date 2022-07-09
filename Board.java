@@ -4,17 +4,22 @@
  */
 public class Board {
 
-    /* Creates a standard Mancala board. */
-    public Board(boolean mode) {
+    /** Creates a default Mancala board on CAPTURE mode. */
+    public Board() {
+        new Board("CAPTURE");
+    }
+
+    /* Creates a Mancala board with mode MODE. */
+    public Board(String mode) {
         setDivets();
-        _isCaptureMode = mode;
+        _mode = mode;
     }
 
     /** Move logic that can be called regardless of the
      * current game mode.
      */
     public void makeMove(int divet) {
-        if (_isCaptureMode) {
+        if (_mode.equals("CAPTURE")) {
             makeMoveCapture(divet);
         } else {
             makeMoveAvalanche(divet);
@@ -35,10 +40,16 @@ public class Board {
                 _divets[divet] += 1;
                 moveLength -= 1;
             }
-            if (_divets[divet] == 1) {
-                //CAPTURE MECHANIC
-                //TAKE FROM OPPONENT
-                //ADD TO DIVET[0] or DIVET[7] depending on player
+            if ((divet == 7 && _isRedTurn) || (divet == 0 && !_isRedTurn)) {
+                //FREE TURN
+                //Allow PLAYER INPUT AGAIN
+            }
+            else if (canCapture(divet)) {
+                int captured = 0;
+                captured += _divets[divet] + _divets[reflectedDivet(divet)];
+                _divets[currScoringDivet()] += captured;
+                _divets[divet] = 0;
+                _divets[reflectedDivet(divet)] = 0;
             }
 
         }
@@ -46,7 +57,27 @@ public class Board {
 
     /** Move logic for the Avalanche rules of the game. */
     public void makeMoveAvalanche(int divet) {
-
+        int moveLength = _divets[divet];
+        if (moveLength <= 0) {
+            System.out.println("ERROR"); 
+            //FIXME
+            //BUILD AN ERROR SYSTEM?
+        } else {
+            _divets[divet] = 0;
+            while (moveLength > 0) {
+                divet = nextDivet(divet);
+                _divets[divet] += 1;
+                moveLength -= 1;
+                if (canAvalanche(divet, moveLength)) {
+                    moveLength = _divets[divet];
+                    _divets[divet] = 0;
+                }
+            }
+            if ((divet == 7 && _isRedTurn) || (divet == 0 && !_isRedTurn)) {
+                //FREE TURN
+                //Allow PLAYER INPUT AGAIN
+            }
+        }
     }
 
     /* Sets the number of rocks in each non-scoring divet to 4.
@@ -69,6 +100,45 @@ public class Board {
             next += 1;
         }
         return next;
+    }
+
+    /** Returns the reflected divet on the other side of the board. */
+    public int reflectedDivet(int divet) {
+        return (14 - divet) % 14;
+    }
+
+    /** Returns true iff DIVET is on the current player's side. */
+    public boolean currPlayerDivet(int divet) {
+        return ((isRedTurn() && divet >= 1 && divet <= 7)
+         || (!isRedTurn() && (divet >= 8 || divet == 0)));
+    }
+
+    /** Returns true iff the divet across from DIVET is not empty. */
+    public boolean reflectedDivitNotEmpty(int divet) {
+        return _divets[reflectedDivet(divet)] > 0;
+    }
+
+    /** Returns true if the current player will capture the opponents rocks.
+     * Capture mode only.
+     */
+    public boolean canCapture(int divet) {
+        return _divets[divet] == 1 && currPlayerDivet(divet) && reflectedDivitNotEmpty(divet);
+    }
+
+    /** Returns true if the current player will avalanche.
+     * Avalanche mode only.
+     */
+    public boolean canAvalanche(int divet, int moveLength) {
+        return _divets[divet] != 1 && (divet % 7) != 0 && moveLength == 0;
+    }
+
+    /** Returns the location of the scoring divet for whosever turn it is. */
+    public int currScoringDivet() {
+        if (isRedTurn()) {
+            return 7;
+        } else {
+            return 0;
+        }
     }
 
     /** Updates the number of rocks in play. */
@@ -136,8 +206,9 @@ public class Board {
      */
     private boolean _isRedTurn = true;
 
-    /** Keeps track of the mode of the game. True iff the game is in Capture mode
-     * and False iff the game is in Avalanche mode.
+    /** Keeps track of the mode of the game.
+     * CAPTURE is capture mode. (default)
+     * AVALANCHE is avalanche mode. 
      */
-    private boolean _isCaptureMode;
+    private String _mode;
 }
