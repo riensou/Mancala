@@ -5,8 +5,48 @@
 public class Board {
 
     /* Creates a standard Mancala board. */
-    public Board() {
+    public Board(boolean mode) {
         setDivets();
+        _isCaptureMode = mode;
+    }
+
+    /** Move logic that can be called regardless of the
+     * current game mode.
+     */
+    public void makeMove(int divet) {
+        if (_isCaptureMode) {
+            makeMoveCapture(divet);
+        } else {
+            makeMoveAvalanche(divet);
+        }
+    }
+
+    /** Move logic for the Capture rules of the game. */
+    public void makeMoveCapture(int divet) {
+        int moveLength = _divets[divet];
+        if (moveLength <= 0) {
+            System.out.println("ERROR"); 
+            //FIXME
+            //BUILD AN ERROR SYSTEM?
+        } else {
+            _divets[divet] = 0;
+            while (moveLength > 0) {
+                divet = nextDivet(divet);
+                _divets[divet] += 1;
+                moveLength -= 1;
+            }
+            if (_divets[divet] == 1) {
+                //CAPTURE MECHANIC
+                //TAKE FROM OPPONENT
+                //ADD TO DIVET[0] or DIVET[7] depending on player
+            }
+
+        }
+    }
+
+    /** Move logic for the Avalanche rules of the game. */
+    public void makeMoveAvalanche(int divet) {
+
     }
 
     /* Sets the number of rocks in each non-scoring divet to 4.
@@ -20,6 +60,15 @@ public class Board {
             }
         }
         updateRocksInPlay();
+    }
+
+    /** Returns the next divet after DIVET. */
+    public int nextDivet(int divet) {
+        int next = (divet + 1) % 14;
+        if ((isRedTurn() && next == 0) || (!isRedTurn() && next == 7)) {
+            next += 1;
+        }
+        return next;
     }
 
     /** Updates the number of rocks in play. */
@@ -87,4 +136,8 @@ public class Board {
      */
     private boolean _isRedTurn = true;
 
+    /** Keeps track of the mode of the game. True iff the game is in Capture mode
+     * and False iff the game is in Avalanche mode.
+     */
+    private boolean _isCaptureMode;
 }
