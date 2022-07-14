@@ -7,6 +7,7 @@ public class Board {
     /** Creates a default Mancala board on CAPTURE mode. */
     public Board() {
         new Board("CAPTURE");
+        _inProgress = true;
     }
 
     /* Creates a Mancala board with mode MODE. */
@@ -187,6 +188,16 @@ public class Board {
         return _isRedTurn;
     }
 
+    /** Returns whether or not the game is still being played. */
+    public boolean inProgress() {
+        return _inProgress;
+    }
+
+    /** Sets _inProgress to false when the game is over. */
+    public void completed() {
+        _inProgress = false;
+    }
+
     /* The 14 divets in a board of Mancala (0-indexed). Divet 0 and 7 are 
      * the scoring divets for Red and Blue respectively.
      */
@@ -211,4 +222,7 @@ public class Board {
      * AVALANCHE is avalanche mode. 
      */
     private String _mode;
+
+    /** Returns true iff the current board has no winner. */
+    private boolean _inProgress;
 }
