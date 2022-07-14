@@ -12,7 +12,7 @@ public class Board {
 
     /* Creates a Mancala board with mode MODE. */
     public Board(String mode) {
-        setDivets();
+        setDivets(4);
         _mode = mode;
         _inProgress = true;
     }
@@ -20,7 +20,7 @@ public class Board {
     /** String representation of the Board. */
     public String toString() {
         String boardString = "";
-        boardString += "       \u001B[34m" + formatNum(_divets[0]) + "\u001B[0m\n";
+        boardString += "\n       \u001B[34m" + formatNum(_divets[0]) + "\u001B[0m\n";
         for (int i = 1; i < _divets.length / 2; i += 1) {
             boardString += "(" + Integer.toString(i) + ") " + formatNum(_divets[i]) + " || " 
             + formatNum(_divets[14 - i]) + "\n";
@@ -48,7 +48,7 @@ public class Board {
      */
     public void makeMove(int divet) {
         if (!checkValidMove(divet)) {
-            System.out.println("Invalid Move");
+            System.out.println("\u001B[33mInvalid Move\u001B[0m\n");
             return;
         }
         if (_mode.equals("CAPTURE")) {
@@ -57,6 +57,9 @@ public class Board {
             makeMoveAvalanche(divet);
         }
         updateRocksInPlay();
+        if (winner()) {
+            completed();
+        }
     }
 
     /** Move logic for the Capture rules of the game. */
@@ -102,14 +105,13 @@ public class Board {
         updateWhoseTurn();
     }
 
-    /* Sets the number of rocks in each non-scoring divet to 4.
+    /* Sets the number of rocks in each non-scoring divet to AMOUNT.
      * Updates the number of rocks in play.
      */
-    public void setDivets() {
-        _divets = new int[14];
+    public void setDivets(int amount) {
         for (int i = 0; i < _divets.length; i+= 1) {
             if (i % 7 != 0) {
-                _divets[i] = 4;
+                _divets[i] = amount;
             }
         }
         updateRocksInPlay();
@@ -166,12 +168,23 @@ public class Board {
     /** Updates the number of rocks in play. */
     public void updateRocksInPlay() {
         int total = 0;
+        int total_red = 0;
+        int total_blue = 0;
         for (int i = 0; i < _divets.length; i+= 1) {
             if (i % 7 != 0) {
+                if (i < 8) {
+                    total_red += _divets[i];
+                } else {
+                    total_blue += _divets[i];
+                }
                 total += _divets[i];
             }
         }
         _rocksInPlay = total;
+        _redSideRocks = total_red;
+        _blueSideRocks = total_blue;
+        _redRocks = _divets[7];
+        _blueRocks = _divets[0];
     }
 
     /** Returns the number of rocks in play. */
@@ -214,18 +227,50 @@ public class Board {
         return _inProgress;
     }
 
+    public boolean winner() {
+        return ((_redSideRocks == 0) | (_blueSideRocks == 0));
+    }
+
     /** Sets _inProgress to false when the game is over. */
     public void completed() {
         _inProgress = false;
+        if (_mode == "CAPTURE") {
+            if (_redSideRocks == 0) {
+                _blueRocks += _blueSideRocks;
+                _divets[0] += _blueSideRocks;
+                setDivets(0);
+            } else {
+                _redRocks += _redSideRocks;
+                _divets[7] += _redSideRocks;
+                setDivets(0);
+            }
+        }
+        if (_redRocks > _blueRocks) {
+            _winner = "RED WINS";
+        } else if (_redRocks < _blueRocks) {
+            _winner = "BLUE WINS";
+        } else {
+            _winner = "DRAW";
+        }
+    }
+
+    public String winnerString() {
+        return _winner;
     }
 
     /* The 14 divets in a board of Mancala (0-indexed). Divet 0 and 7 are 
      * the scoring divets for Blue and Red respectively.
      */
-    private int[] _divets;
+    private int[] _divets = new int[14];
 
     /** The number of rocks in the non-scoring divets. */
     private int _rocksInPlay;
+
+    /** The number of rocks on Red's side. */
+    private int _redSideRocks;
+
+    /** The number of rocks on Blue's side. */
+    private int _blueSideRocks;
 
     /** The number of rocks in Red's scoring divet. */
     private int _redRocks;
@@ -244,6 +289,9 @@ public class Board {
      */
     private String _mode;
 
-    /** Returns true iff the current board has no winner. */
+    /** True iff the current board has no winner. */
     private boolean _inProgress;
+
+    /** The color of the winner of the game. */
+    private String _winner;
 }
