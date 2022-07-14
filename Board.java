@@ -4,17 +4,40 @@
  */
 public class Board {
 
-    /** Creates a default Mancala board on CAPTURE mode. */
-    public Board() {
-        new Board("CAPTURE");
-        _inProgress = true;
-    }
+    ///** Creates a default Mancala board on CAPTURE mode. */
+    //public Board() {
+    //    new Board("CAPTURE");
+    //    _inProgress = true;
+    //}
 
     /* Creates a Mancala board with mode MODE. */
     public Board(String mode) {
         setDivets();
         _mode = mode;
+        _inProgress = true;
     }
+
+    /** String representation of the Board. */
+    public String toString() {
+        String boardString = "";
+        boardString += "       \u001B[34m" + formatNum(_divets[0]) + "\u001B[0m\n";
+        for (int i = 1; i < _divets.length / 2; i += 1) {
+            boardString += "(" + Integer.toString(i) + ") " + formatNum(_divets[i]) + " || " 
+            + formatNum(_divets[14 - i]) + " (" + Integer.toString(14 - i) + ") " + "\n";
+        }
+        boardString += "       \u001B[31m" + formatNum(_divets[7]) + "\u001B[0m";
+        return boardString;
+    }
+
+    /** Helper function for toString method. */
+    private static String formatNum(int i) {
+        if (i >= 10) {
+            return Integer.toString(i);
+        } else {
+            return "0" + Integer.toString(i);
+        }
+    }
+
 
     /** Move logic that can be called regardless of the
      * current game mode.
@@ -25,60 +48,52 @@ public class Board {
         } else {
             makeMoveAvalanche(divet);
         }
+        updateRocksInPlay();
     }
 
     /** Move logic for the Capture rules of the game. */
     public void makeMoveCapture(int divet) {
         int moveLength = _divets[divet];
-        if (moveLength <= 0) {
-            System.out.println("ERROR"); 
-            //FIXME
-            //BUILD AN ERROR SYSTEM?
-        } else {
-            _divets[divet] = 0;
-            while (moveLength > 0) {
-                divet = nextDivet(divet);
-                _divets[divet] += 1;
-                moveLength -= 1;
-            }
-            if ((divet == 7 && _isRedTurn) || (divet == 0 && !_isRedTurn)) {
-                //FREE TURN
-                //Allow PLAYER INPUT AGAIN
-            }
-            else if (canCapture(divet)) {
-                int captured = 0;
-                captured += _divets[divet] + _divets[reflectedDivet(divet)];
-                _divets[currScoringDivet()] += captured;
-                _divets[divet] = 0;
-                _divets[reflectedDivet(divet)] = 0;
-            }
+        assert (moveLength > 0);
 
+        _divets[divet] = 0;
+        while (moveLength > 0) {
+            divet = nextDivet(divet);
+            _divets[divet] += 1;
+            moveLength -= 1;
         }
+        if ((divet == 7 && _isRedTurn) || (divet == 0 && !_isRedTurn)) {
+            return;
+        }
+        else if (canCapture(divet)) {
+            int captured = 0;
+            captured += _divets[divet] + _divets[reflectedDivet(divet)];
+            _divets[currScoringDivet()] += captured;
+            _divets[divet] = 0;
+            _divets[reflectedDivet(divet)] = 0;
+        }
+        updateWhoseTurn();
     }
 
     /** Move logic for the Avalanche rules of the game. */
     public void makeMoveAvalanche(int divet) {
         int moveLength = _divets[divet];
-        if (moveLength <= 0) {
-            System.out.println("ERROR"); 
-            //FIXME
-            //BUILD AN ERROR SYSTEM?
-        } else {
-            _divets[divet] = 0;
-            while (moveLength > 0) {
-                divet = nextDivet(divet);
-                _divets[divet] += 1;
-                moveLength -= 1;
-                if (canAvalanche(divet, moveLength)) {
-                    moveLength = _divets[divet];
-                    _divets[divet] = 0;
-                }
-            }
-            if ((divet == 7 && _isRedTurn) || (divet == 0 && !_isRedTurn)) {
-                //FREE TURN
-                //Allow PLAYER INPUT AGAIN
+        assert (moveLength > 0);
+
+        _divets[divet] = 0;
+        while (moveLength > 0) {
+            divet = nextDivet(divet);
+            _divets[divet] += 1;
+            moveLength -= 1;
+            if (canAvalanche(divet, moveLength)) {
+                moveLength = _divets[divet];
+                _divets[divet] = 0;
             }
         }
+        if ((divet == 7 && _isRedTurn) || (divet == 0 && !_isRedTurn)) {
+            return;
+        }
+        updateWhoseTurn();
     }
 
     /* Sets the number of rocks in each non-scoring divet to 4.
@@ -199,7 +214,7 @@ public class Board {
     }
 
     /* The 14 divets in a board of Mancala (0-indexed). Divet 0 and 7 are 
-     * the scoring divets for Red and Blue respectively.
+     * the scoring divets for Blue and Red respectively.
      */
     private int[] _divets;
 

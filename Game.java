@@ -8,7 +8,7 @@ public class Game {
 
     /** Starts a game of Mancala. */
     public Game() {
-        _board = new Board();
+        _board = new Board("CAPTURE");
         _redPlayer = new Player(true);
         _bluePlayer = new Player(false);
     }
@@ -21,11 +21,13 @@ public class Game {
                 if (_board.isRedTurn()) {
                     String input = userInput.nextLine();
                     System.out.println("RED: " + input);
-                    _board.updateWhoseTurn(); // Do this in Board.java not here
+                    _board.makeMove(Integer.valueOf(input));
+                    System.out.println(_board);
                 } else {
                     String input = userInput.nextLine();
                     System.out.println("BLUE: " + input);
-                    _board.updateWhoseTurn(); // Do this in Board.java not here
+                    _board.makeMove(Integer.valueOf(input));
+                    System.out.println(_board);
                 }
             }
         }
