@@ -7,8 +7,8 @@ import java.util.Scanner;
 public class Game {
 
     /** Starts a game of Mancala. */
-    public Game() {
-        _board = new Board("CAPTURE");
+    public Game(String mode) {
+        _board = new Board(mode);
         _redPlayer = new Player(true);
         _bluePlayer = new Player(false);
     }
@@ -26,11 +26,15 @@ public class Game {
                 } else {
                     String input = userInput.nextLine();
                     System.out.println("BLUE: " + input);
-                    _board.makeMove(Integer.valueOf(input));
+                    _board.makeMove(blueDivet(Integer.valueOf(input)));
                     System.out.println(_board);
                 }
             }
         }
+    }
+
+    private static int blueDivet(int i) {
+        return 14 - i;
     }
 
     /** The board of this game of Mancala. */

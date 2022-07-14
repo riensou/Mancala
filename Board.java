@@ -23,9 +23,9 @@ public class Board {
         boardString += "       \u001B[34m" + formatNum(_divets[0]) + "\u001B[0m\n";
         for (int i = 1; i < _divets.length / 2; i += 1) {
             boardString += "(" + Integer.toString(i) + ") " + formatNum(_divets[i]) + " || " 
-            + formatNum(_divets[14 - i]) + " (" + Integer.toString(14 - i) + ") " + "\n";
+            + formatNum(_divets[14 - i]) + "\n";
         }
-        boardString += "       \u001B[31m" + formatNum(_divets[7]) + "\u001B[0m";
+        boardString += "       \u001B[31m" + formatNum(_divets[7]) + "\u001B[0m\n";
         return boardString;
     }
 
@@ -38,11 +38,19 @@ public class Board {
         }
     }
 
+    /** Returns true if the divet has rocks. */
+    public boolean checkValidMove(int divet) {
+        return (_divets[divet] > 0) && (divet % 7 != 0);
+    }
 
     /** Move logic that can be called regardless of the
      * current game mode.
      */
     public void makeMove(int divet) {
+        if (!checkValidMove(divet)) {
+            System.out.println("Invalid Move");
+            return;
+        }
         if (_mode.equals("CAPTURE")) {
             makeMoveCapture(divet);
         } else {
@@ -54,7 +62,6 @@ public class Board {
     /** Move logic for the Capture rules of the game. */
     public void makeMoveCapture(int divet) {
         int moveLength = _divets[divet];
-        assert (moveLength > 0);
 
         _divets[divet] = 0;
         while (moveLength > 0) {
@@ -78,7 +85,6 @@ public class Board {
     /** Move logic for the Avalanche rules of the game. */
     public void makeMoveAvalanche(int divet) {
         int moveLength = _divets[divet];
-        assert (moveLength > 0);
 
         _divets[divet] = 0;
         while (moveLength > 0) {

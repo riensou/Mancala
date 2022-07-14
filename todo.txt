@@ -1,0 +1,10 @@
+make win detection
+
+catch wrong user inputs without erroring
+
+start AI minmax algorithm
+
+implement GUI
+
+main -- terminal
+main 
