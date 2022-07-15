@@ -1,20 +1,31 @@
+import java.util.Arrays;
+
 /**
  * A board that keeps track of the current state of the game.
  * @author Ryan Campbell
  */
 public class Board {
 
-    ///** Creates a default Mancala board on CAPTURE mode. */
-    //public Board() {
-    //    new Board("CAPTURE");
-    //    _inProgress = true;
-    //}
-
-    /* Creates a Mancala board with mode MODE. */
+    /** Creates a Mancala board with mode MODE. */
     public Board(String mode) {
         setDivets(4);
         _mode = mode;
         _inProgress = true;
+        _winner = "";
+    }
+
+    /** Creates a Mancala board that is a copy of BOARD. */
+    public Board(Board board) {
+        this._divets = Arrays.copyOf(board._divets, board._divets.length);
+        this._rocksInPlay = board._rocksInPlay;
+        this._redRocks = board._redRocks;
+        this._blueRocks = board._blueRocks;
+        this._redSideRocks = board._redSideRocks;
+        this._blueSideRocks = board._blueSideRocks;
+        this._isRedTurn = board._isRedTurn;
+        this._mode = board._mode;
+        this._inProgress = board._inProgress;
+        this._winner = board._winner;
     }
 
     /** String representation of the Board. */
@@ -48,7 +59,7 @@ public class Board {
      */
     public void makeMove(int divet) {
         if (!checkValidMove(divet)) {
-            System.out.println("\u001B[33mInvalid Move\u001B[0m\n");
+            System.out.println("\u001B[33mInvalid Move: " + Integer.toString(divet) + "\u001B[0m\n");
             return;
         }
         if (_mode.equals("CAPTURE")) {
@@ -129,6 +140,20 @@ public class Board {
     /** Returns the reflected divet on the other side of the board. */
     public int reflectedDivet(int divet) {
         return (14 - divet) % 14;
+    }
+
+    /** Returns the distance from DIVET to scoring divet for whosever turn it is. */
+    public int distanceToScoring(int divet) {
+        int distance = 0;
+        while ((divet != 7 && _isRedTurn) || (divet != 0 && !_isRedTurn)) {
+            divet = nextDivet(divet);
+            distance += 1;
+        }
+        return distance;
+    }
+
+    public int[] divets() {
+        return _divets;
     }
 
     /** Returns true iff DIVET is on the current player's side. */

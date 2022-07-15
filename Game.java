@@ -14,17 +14,17 @@ public class Game {
     }
 
 
-
+    /** Plays a game of Mancala. */
     public void play() {
         System.out.println(_board);
         try (Scanner userInput = new Scanner(System.in)) {
             while (_board.inProgress()) {
                 if (_board.isRedTurn()) {
-                    String input = getValidEntry(userInput, _board);
+                    String input = getMove(_redPlayer, userInput, _board);
                     _board.makeMove(Integer.valueOf(input));
                     System.out.println(_board);
                 } else {
-                    String input = getValidEntry(userInput, _board);
+                    String input = getMove(_bluePlayer, userInput, _board);
                     _board.makeMove(blueDivet(Integer.valueOf(input)));
                     System.out.println(_board);
                 }
@@ -33,10 +33,21 @@ public class Game {
         }
     }
 
+    /** Returns the move number for a blue divet. */
     private static int blueDivet(int i) {
         return 14 - i;
     }
 
+    private static String getMove(Player player, Scanner userInput, Board board) {
+        if (player.isAuto()) {
+            //get AI generated move somehow
+            return "THIS SHOULDN'T HAPPEN RIGHT NOW";
+        } else {
+            return getValidEntry(userInput, board);
+        }
+    }
+
+    /** Returns a valid move string for a manual player. */
     private static String getValidEntry(Scanner userInput, Board board) {
         if (board.isRedTurn()) {
             System.out.print("RED: ");

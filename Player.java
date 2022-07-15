@@ -3,9 +3,15 @@
  * @author Ryan Campbell
  */
 public class Player {
+    
     /** Creates a red or blue player. */
     public Player(boolean playerColor) {
         _playerColor = playerColor;
+
+    }
+
+    public boolean isAuto() {
+        return false;
     }
 
     public boolean getColor() {
@@ -15,5 +21,5 @@ public class Player {
     /** True iff player is red,
      * False iff player is blue.
      */
-    private boolean _playerColor;
+    protected boolean _playerColor;
 }
