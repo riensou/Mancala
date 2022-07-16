@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /**
  * A player of the game.
  * @author Ryan Campbell
@@ -16,6 +18,10 @@ public class Player {
 
     public boolean getColor() {
         return _playerColor;
+    }
+
+    public ArrayList<String> legalMoves(ArrayList<Board> boards, ArrayList<String> legalMoves, boolean currPlayer) {
+        return legalMoves;
     }
 
     /** True iff player is red,

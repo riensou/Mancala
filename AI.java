@@ -26,7 +26,8 @@ public class AI extends Player{
     /** Returns an ArrayList<String> where each element is a possible move for CURRPLAYER.
      * Strings with more than 1 digits represent the moves where multiple divets are selected.
      */
-    private ArrayList<String> legalMoves(ArrayList<Board> boards, ArrayList<String> legalMoves, boolean currPlayer) {
+    @Override
+    public ArrayList<String> legalMoves(ArrayList<Board> boards, ArrayList<String> legalMoves, boolean currPlayer) {
         String move;
         Board board;
         boolean continueRecursion = false;
@@ -34,17 +35,16 @@ public class AI extends Player{
         ArrayList<Integer> toBeRemoved = new ArrayList<>();
         for (int m = 0; m < listLength; m += 1) {
             if (!legalMoves.get(m).equals("")) {
-                if (boards.get(m).checkValidMove(correctDivet(Integer.parseInt(legalMoves.get(m)) % 10, currPlayer))) {
-                    boards.get(m).makeMove(correctDivet(Integer.parseInt(legalMoves.get(m)) % 10, currPlayer));
+                if (boards.get(m).isRedTurn() == currPlayer 
+                && boards.get(m).checkValidMove(correctDivet(Integer.parseInt(legalMoves.get(m).substring(legalMoves.get(m).length() - 1)) % 10, currPlayer))) {
+                    boards.get(m).makeMove(correctDivet(Integer.parseInt(legalMoves.get(m).substring(legalMoves.get(m).length() - 1)) % 10, currPlayer));
                     boards.set(m, boards.get(m));
                 }
             }
             if (boards.get(m).isRedTurn() == currPlayer) {
-                //move = legalMoves.remove(m);
-                //board = boards.remove(m);
                 move = legalMoves.get(m);
                 board = boards.get(m);
-                toBeRemoved.add(m);
+                toBeRemoved.add(0, m);
                 continueRecursion = true;
                 for (int i = 1; i < 7; i += 1) {
                     if (board.divets()[correctDivet(i, currPlayer)] > 0) {
@@ -75,6 +75,14 @@ public class AI extends Player{
             return -winningValue;
         } else {
             return 0;
+        }
+    }
+
+    private static float correctDivet(float divet, boolean playerColor) {
+        if (playerColor) {
+            return divet;
+        } else {
+            return 14 - divet;
         }
     }
 

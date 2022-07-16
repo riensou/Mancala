@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -10,7 +12,8 @@ public class Game {
     public Game(String mode) {
         _board = new Board(mode);
         _redPlayer = new Player(true);
-        _bluePlayer = new Player(false);
+        //_bluePlayer = new Player(false);
+        _bluePlayer = new AI(false, 4);
     }
 
 
@@ -40,8 +43,19 @@ public class Game {
 
     private static String getMove(Player player, Scanner userInput, Board board) {
         if (player.isAuto()) {
-            //get AI generated move somehow
-            return "THIS SHOULDN'T HAPPEN RIGHT NOW";
+            ArrayList<String> legalMoves = new ArrayList<>();
+            ArrayList<Board> boards = new ArrayList<>();
+            legalMoves.add("");
+            boards.add(board);
+            legalMoves = player.legalMoves(boards, legalMoves, player.getColor());
+            String input = (legalMoves.get(legalMoves.size() - 1).substring(0, 1));
+            System.out.println(legalMoves.get(legalMoves.size() - 1));
+            if (board.isRedTurn()) {
+                System.out.print("RED: " + input + "\n");
+            } else {
+                System.out.print("BLUE: " + input + "\n");
+            }
+            return input;
         } else {
             return getValidEntry(userInput, board);
         }
