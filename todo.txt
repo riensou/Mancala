@@ -1,5 +1,3 @@
-start AI minmax algorithm
-
 implement GUI
 
 main -- terminal

@@ -73,6 +73,18 @@ public class Board {
         }
     }
 
+    public void makeMove(String move) {
+        while (!move.equals("")) {
+            if (_isRedTurn) {
+                makeMove(Integer.parseInt(move.substring(0, 1)));
+            } else {
+                makeMove(reflectedDivet(Integer.parseInt(move.substring(0, 1))));
+            }
+            move = move.substring(1);
+
+        }
+    }
+
     /** Move logic for the Capture rules of the game. */
     public void makeMoveCapture(int divet) {
         int moveLength = _divets[divet];
