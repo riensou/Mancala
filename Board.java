@@ -8,6 +8,10 @@ public class Board {
 
     /** Creates a Mancala board with mode MODE. */
     public Board(String mode) {
+        if (!(mode.equals("CAPTURE") || mode.equals("AVALANCHE"))) {
+            System.out.println("\u001B[33mInvalid Mode: " + mode + "\u001B[0m");
+            System.exit(1);
+        }
         setDivets(4);
         _mode = mode;
         _inProgress = true;
